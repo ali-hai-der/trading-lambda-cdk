@@ -8,7 +8,11 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "deploy:ec2-api": "chmod +x deploy-helper.sh && ./deploy-helper.sh",
+    "synth": "cdk synth EC2ApiGatewayStack",
+    "diff": "cdk diff EC2ApiGatewayStack",
+    "destroy:ec2-api": "cdk destroy EC2ApiGatewayStack"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
