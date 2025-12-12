@@ -8,6 +8,9 @@ RUN pip install -r ${LAMBDA_TASK_ROOT}/requirements.txt --target "${LAMBDA_TASK_
 
 # Copy function code
 COPY handler.py ${LAMBDA_TASK_ROOT}/
+COPY methods/ ${LAMBDA_TASK_ROOT}/methods/
+COPY aws/ ${LAMBDA_TASK_ROOT}/aws/
+COPY constants.py ${LAMBDA_TASK_ROOT}/
 
 # Set the CMD to your handler
 CMD [ "handler.handler" ]
