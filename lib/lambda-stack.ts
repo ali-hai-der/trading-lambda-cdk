@@ -16,6 +16,17 @@ export class TradingLambdaStack extends cdk.Stack {
 			isDefault: true
 		});
 
+		// Get LAMBDA_API_KEY from environment variable
+		// Set it before deploying: export LAMBDA_API_KEY=your-secret-key
+		// Or create a .env file in the trading-cdk directory and load it
+		const lambdaApiKey = process.env.LAMBDA_API_KEY || '';
+
+		if (!lambdaApiKey) {
+			console.warn(
+				'WARNING: LAMBDA_API_KEY is not set. Set it with: export LAMBDA_API_KEY=your-key'
+			);
+		}
+
 		// Create security group for Lambda
 		const lambdaSecurityGroup = new ec2.SecurityGroup(
 			this,
@@ -49,7 +60,7 @@ export class TradingLambdaStack extends cdk.Stack {
 				environment: {
 					// Add any environment variables here if needed
 					FASTAPI_BASE_URL: 'http://172.31.6.178:8888',
-					LAMBDA_API_KEY: process.env.LAMBDA_API_KEY || ''
+					LAMBDA_API_KEY: lambdaApiKey
 				}
 			}
 		);

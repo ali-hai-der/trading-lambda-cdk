@@ -12,7 +12,7 @@ def refresh_orders(event):
     url = constants.FASTAPI_BASE_URL + "/data/refresh-orders"
 
     try:
-        aws.rds.execute("TRUNCATE TABLE orders")
+        aws.rds.execute("TRUNCATE TABLE orders", fetch=False)
 
     except Exception as e:
         print(f"Error truncating orders: {e}")
