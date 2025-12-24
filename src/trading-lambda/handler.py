@@ -12,6 +12,7 @@ VALID_METHODS = [
 
 
 def handler(event, context):
+    """Lambda handler function - entry point for AWS Lambda."""
     method = event.get("method")
 
     if method not in VALID_METHODS:

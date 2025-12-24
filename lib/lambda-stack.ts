@@ -77,6 +77,9 @@ export class TradingLambdaStack extends cdk.Stack {
 			}
 		);
 
+		// Ensure Lambda is deleted before security group to avoid dependency issues
+		lambdaSecurityGroup.node.addDependency(tradingLambda);
+
 		// Grant Secrets Manager permissions to Lambda
 		tradingLambda.addToRolePolicy(
 			new iam.PolicyStatement({

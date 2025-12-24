@@ -1,9 +1,12 @@
 import os
 
-from dotenv import load_dotenv
-
-# Load environment variables from .env file for local testing
-load_dotenv()
+# Only load .env file for local testing (safe to call in Lambda - will just do nothing)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # dotenv not available, that's okay - we're in Lambda
+    pass
 
 
 class Constants:
