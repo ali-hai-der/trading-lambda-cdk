@@ -22,7 +22,7 @@ def refresh_orders(event):
         }
 
     try:
-        requests.patch(url, headers={"x-api-key": constants.LAMBDA_API_KEY})
+        requests.patch(url, headers={constants.LAMBDA_API_KEY_HEADER_NAME: constants.LAMBDA_API_KEY})
     except Exception as e:
         print(f"Error refreshing orders: {e}")
         return {

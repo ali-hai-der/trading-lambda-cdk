@@ -36,7 +36,10 @@ def capture_account_summary(event):
     )
 
     try:
-        response = requests.get(url, headers={"x-api-key": constants.LAMBDA_API_KEY})
+        response = requests.get(
+            url,
+            headers={constants.LAMBDA_API_KEY_HEADER_NAME: constants.LAMBDA_API_KEY},
+        )
 
         if response.status_code != 200:
             raise ValueError(f"Error capturing account summary: {response.text}")

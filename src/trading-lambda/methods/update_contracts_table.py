@@ -28,7 +28,11 @@ def update_contracts_table(event):
     }
 
     try:
-        requests.post(url, json=data, headers={"x-api-key": constants.LAMBDA_API_KEY})
+        requests.post(
+            url,
+            json=data,
+            headers={constants.LAMBDA_API_KEY_HEADER_NAME: constants.LAMBDA_API_KEY},
+        )
     except Exception as e:
         print(f"Error updating contracts table: {traceback.format_exc()}")
         raise e
