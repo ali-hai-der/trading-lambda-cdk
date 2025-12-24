@@ -8,7 +8,7 @@ def truncate_orders(event):
     print(f"Truncating orders: {event}")
 
     try:
-        aws.rds.execute("TRUNCATE TABLE orders")
+        aws.rds.execute("TRUNCATE TABLE orders", fetch=False)
     except Exception as e:
         print(f"Error truncating orders: {e}")
         return {"message": "Error truncating orders", "error": traceback.format_exc()}

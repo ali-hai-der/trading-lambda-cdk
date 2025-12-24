@@ -39,15 +39,29 @@ export class TradingLambdaStack extends cdk.Stack {
 				memorySize: 256,
 				vpc,
 				vpcSubnets: {
-					// Use all available subnets (works with default VPC)
+					// Use public subnets (default VPC only has public subnets)
+					// Note: Lambda in VPC loses internet access, so we use VPC endpoint for Secrets Manager
 					subnetType: ec2.SubnetType.PUBLIC,
 					onePerAz: true
 				},
-				allowPublicSubnet: true, // Allow public subnets as fallback for default VPC
+				allowPublicSubnet: true, // Acknowledge that Lambda in public subnet cannot access internet
 				securityGroups: [lambdaSecurityGroup],
 				environment: {
 					// Add any environment variables here if needed
-					FASTAPI_BASE_URL: 'http://172.31.6.178:8888'
+					FASTAPI_BASE_URL: 'http://172.31.6.178:8888',
+					LAMBDA_API_KEY: process.env.LAMBDA_API_KEY || ''
+				}
+			}
+		);
+
+		// Create VPC endpoint for Secrets Manager in public subnets
+		// Lambda in VPC loses internet access, so we need VPC endpoint to access Secrets Manager
+		const secretsManagerEndpoint = vpc.addInterfaceEndpoint(
+			'SecretsManagerEndpoint',
+			{
+				service: ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
+				subnets: {
+					subnetType: ec2.SubnetType.PUBLIC
 				}
 			}
 		);

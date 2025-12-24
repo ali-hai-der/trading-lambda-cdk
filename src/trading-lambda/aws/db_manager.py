@@ -50,7 +50,8 @@ class RDSConnectionManager:
         self.database = database
         self.region_name = region_name
         self.autocommit = autocommit
-        self.connect_timeout = connect_timeout
+        # Increase default timeout for Lambda cold starts and VPC networking
+        self.connect_timeout = connect_timeout if connect_timeout > 10 else 30
 
         self.connection: Optional[psycopg2.extensions.connection] = None
         self._db_config: Optional[Dict[str, Any]] = None
@@ -64,6 +65,7 @@ class RDSConnectionManager:
             return self._db_config
 
         try:
+            logger.info(f"Retrieving secret from Secrets Manager: {self.secret_name}")
             client = boto3.client("secretsmanager", region_name=self.region_name)
             response = client.get_secret_value(SecretId=self.secret_name)
             secret_string = response.get("SecretString")
@@ -73,10 +75,15 @@ class RDSConnectionManager:
 
             self._db_config = json.loads(secret_string)
             logger.info(f"Successfully retrieved secret: {self.secret_name}")
+            logger.debug(f"Secret contains keys: {list(self._db_config.keys())}")
             return self._db_config
 
         except Exception as e:
             logger.error(f"Error retrieving secret {self.secret_name}: {e}")
+            logger.error(f"Error type: {type(e).__name__}")
+            import traceback
+
+            logger.error(f"Traceback: {traceback.format_exc()}")
             raise
 
     def connect(self) -> None:
@@ -93,6 +100,11 @@ class RDSConnectionManager:
         try:
             config = self._get_secret()
 
+            # Log connection attempt (without password)
+            logger.info(
+                f"Attempting to connect to RDS host: {config.get('host')}, port: {config.get('port', 5432)}"
+            )
+
             connection_params = {
                 "host": config["host"],
                 "port": config.get("port", 5432),
@@ -105,14 +117,28 @@ class RDSConnectionManager:
             if self.database:
                 connection_params["dbname"] = self.database
 
+            logger.debug(
+                f"Connection parameters: host={connection_params['host']}, port={connection_params['port']}, user={connection_params['user']}, dbname={connection_params.get('dbname', 'default')}"
+            )
+
             self.connection = psycopg2.connect(**connection_params)
             self.connection.autocommit = self.autocommit
 
             db_info = f" to database '{self.database}'" if self.database else ""
             logger.info(f"Successfully connected to RDS{db_info}")
 
+        except psycopg2.OperationalError as e:
+            logger.error(f"Failed to connect to RDS - Operational Error: {e}")
+            logger.error(
+                f"Host: {config.get('host') if 'config' in locals() else 'unknown'}, Port: {config.get('port', 5432) if 'config' in locals() else 'unknown'}"
+            )
+            raise
         except Exception as e:
-            logger.error(f"Failed to connect to RDS: {e}")
+            logger.error(f"Failed to connect to RDS - Unexpected error: {e}")
+            logger.error(f"Error type: {type(e).__name__}")
+            import traceback
+
+            logger.error(f"Traceback: {traceback.format_exc()}")
             raise
 
     def disconnect(self) -> None:
