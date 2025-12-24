@@ -25,10 +25,11 @@ def update_contracts_table(event):
 
     data = {
         "contracts_details": contracts_details,
+        "background": True,
     }
 
     try:
-        requests.post(
+        response = requests.post(
             url,
             json=data,
             headers={constants.LAMBDA_API_KEY_HEADER_NAME: constants.LAMBDA_API_KEY},
@@ -37,4 +38,4 @@ def update_contracts_table(event):
         print(f"Error updating contracts table: {traceback.format_exc()}")
         raise e
 
-    return {"message": "Contracts table updated"}
+    return {"message": "Contracts table updated", "response": response.json()}
