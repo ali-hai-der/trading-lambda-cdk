@@ -1,10 +1,20 @@
 from aws.db_manager import RDSConnectionManager
 from constants import constants
 
-rds_client = RDSConnectionManager(constants.RDS_SECRET_NAME, database="ibkr")
+# Lazy-load RDS client to avoid connection attempts during module import
+_rds_client = None
+
+
+def _get_rds_client():
+    """Get or create RDS client instance (lazy initialization)."""
+    global _rds_client
+    if _rds_client is None:
+        _rds_client = RDSConnectionManager(constants.RDS_SECRET_NAME, database="ibkr")
+    return _rds_client
 
 
 def execute(query_text, params=None, fetch=True):
+    rds_client = _get_rds_client()
     with rds_client:
         return rds_client.query(
             query_text, params=params, return_pandas=True, fetch=fetch
