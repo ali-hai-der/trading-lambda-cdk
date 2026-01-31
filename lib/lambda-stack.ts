@@ -63,7 +63,8 @@ export class TradingLambdaStack extends cdk.Stack {
 					FASTAPI_BASE_URL: constants.FASTAPI_BASE_URL,
 					LAMBDA_API_KEY: lambdaApiKey,
 					RDS_SECRET_NAME: constants.RDS_SECRET_NAME
-				}
+                },
+                architecture: lambda.Architecture.ARM_64, // VERY IMPORTANT IF YOU DEPLOY FROM A MAC
 			}
 		);
 
