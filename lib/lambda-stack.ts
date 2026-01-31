@@ -6,6 +6,7 @@ import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as path from 'path';
+import * as constants from './constants';
 
 export class TradingLambdaStack extends cdk.Stack {
 	constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -59,8 +60,9 @@ export class TradingLambdaStack extends cdk.Stack {
 				securityGroups: [lambdaSecurityGroup],
 				environment: {
 					// Add any environment variables here if needed
-					FASTAPI_BASE_URL: 'http://172.31.6.178:8888',
-					LAMBDA_API_KEY: lambdaApiKey
+					FASTAPI_BASE_URL: constants.FASTAPI_BASE_URL,
+					LAMBDA_API_KEY: lambdaApiKey,
+					RDS_SECRET_NAME: constants.RDS_SECRET_NAME
 				}
 			}
 		);
@@ -73,12 +75,13 @@ export class TradingLambdaStack extends cdk.Stack {
 				service: ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
 				subnets: {
 					subnetType: ec2.SubnetType.PUBLIC
-				}
+				},
+				privateDnsEnabled: false
 			}
 		);
 
 		// Ensure Lambda is deleted before security group to avoid dependency issues
-		lambdaSecurityGroup.node.addDependency(tradingLambda);
+		// lambdaSecurityGroup.node.addDependency(tradingLambda);
 
 		// Grant Secrets Manager permissions to Lambda
 		tradingLambda.addToRolePolicy(

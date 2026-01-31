@@ -9,7 +9,7 @@ import { TradingLambdaStack } from '../lib/lambda-stack';
 const app = new cdk.App();
 
 // Original Trading Stack
-new TradingLambdaStack(app, 'TradingLambdaCdkStack', {
+new TradingLambdaStack(app, 'LiveTradingLambdaSyncCdkStack', {
 	env: {
 		account: process.env.CDK_DEFAULT_ACCOUNT,
 		region: process.env.CDK_DEFAULT_REGION
