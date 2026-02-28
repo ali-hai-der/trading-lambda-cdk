@@ -134,7 +134,6 @@ export class TradingLambdaStack extends cdk.Stack {
 			new targets.LambdaFunction(tradingLambda, {
 				event: events.RuleTargetInput.fromObject({
 					method: 'capture_account_summary',
-					account_number: 'DUK273068' // TODO: Replace with actual account number for live trading or use environment variable
 				})
 			})
 		);
