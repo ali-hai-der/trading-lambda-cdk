@@ -6,11 +6,17 @@ import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as path from 'path';
-import * as constants from './constants';
+
+export interface TradingLambdaStackProps extends cdk.StackProps {
+	fastApiBaseUrl: string;
+	rdsSecretName: string;
+}
 
 export class TradingLambdaStack extends cdk.Stack {
-	constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+	constructor(scope: Construct, id: string, props: TradingLambdaStackProps) {
 		super(scope, id, props);
+
+		const { fastApiBaseUrl, rdsSecretName } = props;
 
 		// Look up the default VPC (where EC2 instance is running)
 		const vpc = ec2.Vpc.fromLookup(this, 'DefaultVPC', {
@@ -59,12 +65,11 @@ export class TradingLambdaStack extends cdk.Stack {
 				allowPublicSubnet: true, // Acknowledge that Lambda in public subnet cannot access internet
 				securityGroups: [lambdaSecurityGroup],
 				environment: {
-					// Add any environment variables here if needed
-					FASTAPI_BASE_URL: constants.FASTAPI_BASE_URL,
+					FASTAPI_BASE_URL: fastApiBaseUrl,
 					LAMBDA_API_KEY: lambdaApiKey,
-					RDS_SECRET_NAME: constants.RDS_SECRET_NAME
-                },
-                architecture: lambda.Architecture.ARM_64, // VERY IMPORTANT IF YOU DEPLOY FROM A MAC
+					RDS_SECRET_NAME: rdsSecretName
+				},
+				architecture: lambda.Architecture.ARM_64 // VERY IMPORTANT IF YOU DEPLOY FROM A MAC
 			}
 		);
 
